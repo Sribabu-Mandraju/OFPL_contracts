@@ -153,7 +153,6 @@ contract OFPL is Ownable, ReentrancyGuard {
         pool.minLoanSize = p.minLoanSize;
         pool.maxLoanRatio = p.maxLoanRatio;
         pool.auctionLength = p.auctionLength;
-        // emit OFPL__PoolBalanceUpdated(poolId,p.poolBalance,block.timestamp);
         emit OFPL__PoolUpdated(poolId, block.timestamp);
     }
 
@@ -165,7 +164,6 @@ contract OFPL is Ownable, ReentrancyGuard {
         _updatePoolBalance(poolId, p.poolBalance + amount);
         uint256 newPoolBalance = pools[poolId].poolBalance;
         require(newPoolBalance > p.poolBalance, "No amount is added");
-        // emit OFPL__PoolBalanceUpdated(poolId, newPoolBalance, block.timestamp);
         emit OFPL__PoolUpdated(poolId, block.timestamp);
     }
 
@@ -181,7 +179,6 @@ contract OFPL is Ownable, ReentrancyGuard {
         uint256 newPoolBalance = p.poolBalance - amount;
         _updatePoolBalance(poolId, newPoolBalance);
         IERC20(p.loanToken).safeTransfer(msg.sender, amount);
-        // emit OFPL__PoolBalanceUpdated(poolId, newPoolBalance, block.timestamp);
         emit OFPL__PoolUpdated(poolId, block.timestamp);
     }
 
@@ -218,7 +215,6 @@ contract OFPL is Ownable, ReentrancyGuard {
 
         uint256 newBalance = p.poolBalance-b.debt;
         _updatePoolBalance(b.poolId,newBalance);
-        // emit OFPL__PoolBalanceUpdated(b.poolId,newBalance,block.timestamp);
         pools[b.poolId].outStandingLoans += b.debt;
         emit OFPL__PoolUpdated(b.poolId, block.timestamp);
         uint256 fees = (b.debt*s_borrowerFee)/10000;
@@ -248,7 +244,6 @@ contract OFPL is Ownable, ReentrancyGuard {
         uint256 totalDebt = loan.debt+lenderfee+protcolfee;
         uint256 newPoolBalance = pool.poolBalance + loan.debt + lenderfee;
         _updatePoolBalance(poolId, newPoolBalance);
-        // emit OFPL__PoolBalanceUpdated(poolId,newPoolBalance,block.timestamp);
         pool.outStandingLoans -= loan.debt;
         emit OFPL__PoolUpdated(poolId, block.timestamp);
         IERC20(pool.loanToken).safeTransferFrom(msg.sender,address(this),totalDebt);
@@ -281,14 +276,12 @@ contract OFPL is Ownable, ReentrancyGuard {
         require(newPool.poolBalance >= totalDebt, "INSUFFICIENT_POOL_BALANCE");
         _updatePoolBalance(oldPoolId,newBalance);
         pools[oldPoolId].outStandingLoans -= loan.debt;
-        // emit OFPL__PoolBalanceUpdated(oldPoolId,newBalance,block.timestamp);
         emit OFPL__PoolUpdated(oldPoolId, block.timestamp);
 
         uint256 newPoolBalance = newPool.poolBalance - totalDebt;
         _updatePoolBalance(poolId, newPoolBalance);
         newPool.outStandingLoans += totalDebt;
         emit OFPL__PoolUpdated(poolId, block.timestamp);
-        // emit OFPL__PoolBalanceUpdated(poolId,newPoolBalance,block.timestamp);
         IERC20(loan.loanToken).safeTransfer(s_feeReceiver,protocolfee);
 
         loan.lender = newPool.lender;
@@ -298,11 +291,7 @@ contract OFPL is Ownable, ReentrancyGuard {
         loan.auctionLength = newPool.auctionLength;
 
         emit OFPL__LoanLenderChanged(loanId,oldPoolId,poolId);
-        
-
         emit OFPL__LaonIsUpdated(loanId,block.timestamp);
-
-
     }
 
 
@@ -349,7 +338,6 @@ contract OFPL is Ownable, ReentrancyGuard {
         emit OFPL__PoolUpdated(oldPoolId, block.timestamp);
         IERC20(loan.loanToken).safeTransfer(s_feeReceiver,protocolFee);
         _updatePoolBalance(poolId, totalDebt);
-        // emit OFPL__PoolBalanceUpdated(poolId,totalDebt,block.timestamp);
         pools[poolId].outStandingLoans += totalDebt;
         emit OFPL__PoolUpdated(poolId, block.timestamp);
 
@@ -401,6 +389,7 @@ contract OFPL is Ownable, ReentrancyGuard {
         bytes32 poolId = getPoolID(loan.lender, loan.loanToken, loan.collateralToken);
 
         pools[poolId].outStandingLoans -= loan.debt;
+        emit OFPL__PoolUpdated(poolId,block.timestamp);
         emit OFPL__LoanSeized(loanId,block.timestamp);
 
     }
@@ -428,13 +417,13 @@ contract OFPL is Ownable, ReentrancyGuard {
         uint256 totalDebt = loan.debt + interest + protocolfee;
 
         _updatePoolBalance(oldPoolId,loan.debt + interest );
-        emit OFPL__PoolBalanceUpdated(oldPoolId,loan.debt + interest,block.timestamp);
         pools[oldPoolId].outStandingLoans -= loan.debt;
+        emit OFPL__PoolUpdated(oldPoolId,block.timestamp);
 
 
         _updatePoolBalance(rf.poolId, totalDebt);
-        emit OFPL__PoolBalanceUpdated(rf.poolId,totalDebt,block.timestamp);
         newPool.outStandingLoans += totalDebt;
+        emit OFPL__PoolUpdated(rf.poolId,block.timestamp);
 
         if(totalDebt > rf.debt){
             IERC20(loan.loanToken).safeTransferFrom(msg.sender,address(this),totalDebt-rf.debt);
@@ -495,7 +484,7 @@ contract OFPL is Ownable, ReentrancyGuard {
         uint256 _newPoolBalance
     ) internal {
         pools[poolId].poolBalance = _newPoolBalance;
-        emit OFPL__PoolBalanceUpdated(poolId, _newPoolBalance, block.timestamp);
+        // emit OFPL__PoolBalanceUpdated(poolId, _newPoolBalance, block.timestamp);
     }
 
     function _getLoanRation(

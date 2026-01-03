@@ -92,4 +92,4 @@ create-another-pool:
 	@forge script script/createPool.s.sol:CreatePool --rpc-url https://base-sepolia.g.alchemy.com/v2/GQXyK5v1cXTXl5Ub0idAE --private-key $(LOAN_TAKER_PRIVATE_KEY) --broadcast -vvvv
 
 give-loan:
-	@forge script script/createPool.s.sol:GiveLoan --rpc-url https://base-sepolia.g.alchemy.com/v2/GQXyK5v1cXTXl5Ub0idAE --private-key $(LOAN_TAKER_PRIVATE_KEY) --broadcast -vvvv
+	@forge script script/createPool.s.sol:GiveLoan --rpc-url https://base-sepolia.g.alchemy.com/v2/GQXyK5v1cXTXl5Ub0idAE --private-key $(ADMIN_PRIVATE_KEY) --broadcast -vvvv

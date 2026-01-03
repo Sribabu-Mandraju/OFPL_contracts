@@ -16,7 +16,7 @@ contract CreatePool is Script {
             1000000 * 1e18
         );
         FaucetToken(0x1627bb547C9ce9A9DdB7010807880cCd46BDa91F).approve(
-            0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B,
+            0xc8AC841B70ABB20ABFF81e610C1459584e32383a,
             1000000 * 1e18
         );
         Pool memory newPool = Pool({
@@ -30,7 +30,7 @@ contract CreatePool is Script {
             interestRate: 1000,
             outStandingLoans: 0
         });
-        c_ofpl = OFPL(0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B);
+        c_ofpl = OFPL(0xc8AC841B70ABB20ABFF81e610C1459584e32383a);
         c_ofpl.createPool(newPool);
         vm.stopBroadcast();
     }
@@ -45,10 +45,10 @@ contract UpdatePool is Script {
             100000 * 1e18
         );
         FaucetToken(0x1627bb547C9ce9A9DdB7010807880cCd46BDa91F).approve(
-            0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B,
+            0xc8AC841B70ABB20ABFF81e610C1459584e32383a,
             100000 * 1e18
         );
-        c_ofpl = OFPL(0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B);
+        c_ofpl = OFPL(0xc8AC841B70ABB20ABFF81e610C1459584e32383a);
 
         (,,,,,,,,uint256 outStandingLoans) = c_ofpl.pools(0x83bd38c209257695bfc796761a87e4fa3e5b1e3d813b3691f8afb470d24ee456);
 
@@ -73,7 +73,7 @@ contract RemoveFromPool is Script {
     OFPL c_ofpl;
     function run() public {
         vm.startBroadcast();
-        c_ofpl = OFPL(0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B);
+        c_ofpl = OFPL(0xc8AC841B70ABB20ABFF81e610C1459584e32383a);
         c_ofpl.removeFromPool(0x0a5833e7d465669255dd43689326ec557b1371f2bd45bdee2be00b3ae6c384f5,100 * 1e6);
         vm.stopBroadcast();
     }
@@ -89,11 +89,11 @@ contract AddToPool is Script {
             10000 * 1e18
         );
         FaucetToken(0x1627bb547C9ce9A9DdB7010807880cCd46BDa91F).approve(
-            0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B,
+            0xc8AC841B70ABB20ABFF81e610C1459584e32383a,
             10000 * 1e18
         );
 
-        c_ofpl = OFPL(0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B);
+        c_ofpl = OFPL(0xc8AC841B70ABB20ABFF81e610C1459584e32383a);
         c_ofpl.addToPool(0x0a5833e7d465669255dd43689326ec557b1371f2bd45bdee2be00b3ae6c384f5,10000 * 1e18);
         vm.stopBroadcast();
     }
@@ -105,8 +105,8 @@ contract TakeLoan is Script {
     function run() public {
         vm.startBroadcast();
         FaucetToken(0x61e101bA661c151042E96340514AD210D13A541C).mint(0x4c9b70b6cC1FcFd2Aaa41d705FbB9BB962BE0245,4*1e18);
-        FaucetToken(0x61e101bA661c151042E96340514AD210D13A541C).approve(0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B,4*1e18);
-        c_ofpl = OFPL(0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B);
+        FaucetToken(0x61e101bA661c151042E96340514AD210D13A541C).approve(0xc8AC841B70ABB20ABFF81e610C1459584e32383a,4*1e18);
+        c_ofpl = OFPL(0xc8AC841B70ABB20ABFF81e610C1459584e32383a);
         Borrow memory b = Borrow({
             poolId:0x83bd38c209257695bfc796761a87e4fa3e5b1e3d813b3691f8afb470d24ee456,
             debt:100 * 1e18,
@@ -122,10 +122,10 @@ contract GiveLoan is Script {
     OFPL c_ofpl;
     function run() public {
         vm.startBroadcast();
-        c_ofpl = OFPL(0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B);
+        c_ofpl = OFPL(0xc8AC841B70ABB20ABFF81e610C1459584e32383a);
         Loan memory lb = c_ofpl.getLoanInfo(0);
         console.log("lender before : ",lb.lender);
-        c_ofpl.giveLoan(0,0x83bd38c209257695bfc796761a87e4fa3e5b1e3d813b3691f8afb470d24ee456);
+        c_ofpl.giveLoan(0,0x934bea3911b34b7c04040011b37021ae774419827036b5d09bb2a6179a930a73);
         Loan memory la = c_ofpl.getLoanInfo(0);
         console.log("lender after : ",la.lender);
         vm.stopBroadcast();

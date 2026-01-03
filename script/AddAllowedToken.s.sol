@@ -9,7 +9,7 @@ contract AddAllowedToken is Script {
     OFPL c_ofpl;
     function run() public {
         vm.startBroadcast();
-        c_ofpl = OFPL(0x1d5f2De119C1014a22fbF3D962e402FbdaD9b61B);
+        c_ofpl = OFPL(0xc8AC841B70ABB20ABFF81e610C1459584e32383a);
         address[10] memory tokens = [
             0x61e101bA661c151042E96340514AD210D13A541C,
             0xd401F418f15F734e05CC5015DD303e8262F8C368,
