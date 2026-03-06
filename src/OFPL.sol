@@ -11,7 +11,7 @@ import "./utils/Events.sol";
 import { console} from "forge-std/Test.sol";
 
 
-/// @title Decentralised Oracle Free Perpetial Lending Protocol
+/// @title Decentralised Oracle Free Perpetial Lending Protocol which users can create pools and borrowers can take borrow loans by providing collaterals 
 /// @author Sribabu Mandraju aka AVG_Spidey
 /// @notice Its a Decentralised peer to peer perpetual lending protocol
 /// @dev I am the developer!
@@ -31,10 +31,11 @@ contract OFPL is Ownable, ReentrancyGuard {
     uint256 public s_borrowerFee;
     uint256 public s_lenderFee;
 
-    mapping(bytes32 => Pool) public pools;
-    mapping(address => bool) public isAllowedToken;
+    mapping(bytes32 => Pool) public pools; // mapping to store poolId -> Pool
+    mapping(address => bool) public isAllowedToken;// mapping to store whether the token is allowed as loan or collateral token
     Loan[] public loans;
 
+    // initialising contract with fee receiver address , borrower fee and lender fee
     constructor(
         address _feeReceiver,
         uint256 _borrowerFee,
@@ -47,6 +48,7 @@ contract OFPL is Ownable, ReentrancyGuard {
 
     /////////////// GOVERNANCE FUCNTIONS ////////////////////////
 
+    // admin of the protocol can send borrower fee
     function setBorroweFee(uint256 _newBorrowerFee) external onlyOwner {
         require(_newBorrowerFee != 0,"Can't set borrower fee to zero");
         require(
@@ -56,6 +58,7 @@ contract OFPL is Ownable, ReentrancyGuard {
         s_borrowerFee = _newBorrowerFee;
     }
 
+    // admin of the protocol can whitelist or dewhitelist tokens
     function whitelistToken(
         address _tokenAddress,
         bool _value
@@ -65,12 +68,14 @@ contract OFPL is Ownable, ReentrancyGuard {
         emit OFPL__TokenAllowListUpdated(_tokenAddress,_value,block.timestamp);
     }
 
+    // admin of the protocol can set lender fee
     function setLenderFee(uint256 _newLenderFee) external onlyOwner {
         require(_newLenderFee != 0 ,"lender fee cannot be zero");
         require(_newLenderFee <= MAXIMUM_LENDER_FEE, "Lender Fee too high");
         s_lenderFee = _newLenderFee;
     }
 
+    // admin of the protocol can set fee receiver address
     function setFeeReceiverAddress(address _newFeeReceiver) external onlyOwner {
         require(
             _newFeeReceiver != address(0) && _newFeeReceiver != address(this),
@@ -81,6 +86,7 @@ contract OFPL is Ownable, ReentrancyGuard {
 
     //////////////////// POOL CONFIGURATION ///////////////////////
 
+    // creating pool with required parameters 
     function createPool(Pool memory p) public nonReentrant returns (bytes32) {
         require(
             p.lender != address(0) &&
@@ -106,6 +112,7 @@ contract OFPL is Ownable, ReentrancyGuard {
         return poolId;
     }
 
+    // pool owner can update pool parameters
     function updatePool(Pool calldata p) external nonReentrant {
         bytes32 poolId = getPoolID(p.lender, p.loanToken, p.collateralToken);
         Pool storage pool = pools[poolId];
@@ -156,6 +163,7 @@ contract OFPL is Ownable, ReentrancyGuard {
         emit OFPL__PoolUpdated(poolId, block.timestamp);
     }
 
+    // add pool balance to existing pool
     function addToPool(bytes32 poolId, uint256 amount) public nonReentrant {
         Pool memory p = pools[poolId];
         require(p.lender == msg.sender, "unauthourized");
@@ -167,6 +175,7 @@ contract OFPL is Ownable, ReentrancyGuard {
         emit OFPL__PoolUpdated(poolId, block.timestamp);
     }
 
+    // remove pool balance from existing pool
     function removeFromPool(
         bytes32 poolId,
         uint256 amount
@@ -183,7 +192,8 @@ contract OFPL is Ownable, ReentrancyGuard {
     }
 
     ///////////////////USERS CONFIGURATION /////////////
- 
+    
+    // borrowers can take loans from existing pools with collateral of required amount
     function borrow(Borrow calldata b) external nonReentrant returns (uint256 loanId){
         require(pools[b.poolId].lender != address(0), "Pool does not exist");
         Pool memory p = pools[b.poolId];
@@ -232,6 +242,7 @@ contract OFPL is Ownable, ReentrancyGuard {
     }
 
 
+    // borrowers can repay their loans with interest to get back their collateral
     function repay(uint256 loanId) external {
         require(loanId < loans.length,"invalid loan id");
         Loan memory loan = loans[loanId];
@@ -254,6 +265,7 @@ contract OFPL is Ownable, ReentrancyGuard {
     }
 
 
+    // owner of the loan can give loan to another pool and get his loan value with interest from the new pool
     function giveLoan(uint256 loanId,bytes32 poolId) external nonReentrant() {
         require(loanId < loans.length,"invalid loanid");
         Loan storage loan = loans[loanId];
@@ -295,7 +307,7 @@ contract OFPL is Ownable, ReentrancyGuard {
     }
 
 
-  
+    // if owner is not able to repay the loan in time , he can start auction to sell his loan to other pools
     function startAuction(uint256 loanId) external {
         require(loanId < loans.length,"invalid loan id");
         Loan storage loan = loans[loanId];
@@ -304,8 +316,10 @@ contract OFPL is Ownable, ReentrancyGuard {
         require(loan.auctionStartTimeStamp == type(uint256).max,"auction is already started");
         loan.auctionStartTimeStamp = block.timestamp;
         emit OFPL__AuctionStarted(loanId,block.timestamp);
+        emit OFPL__LaonIsUpdated(loanId,block.timestamp);
     }
 
+    // pool lenders can buy loans in auction from other lenders
     function buyLoan(uint256 loanId,bytes32 poolId) external nonReentrant() {
         require(loanId < loans.length,"invalid loan id");
         Loan storage loan = loans[loanId];
@@ -351,6 +365,7 @@ contract OFPL is Ownable, ReentrancyGuard {
         emit OFPL__LaonIsUpdated(loanId,block.timestamp);
     }
 
+    // getter function to preview new interest rate for the loan that can be available for auction buyers
     function getExpectedAuctionInterestRate(uint256 loanId)
     public
     view
@@ -375,7 +390,7 @@ contract OFPL is Ownable, ReentrancyGuard {
     }
 
 
-
+    // if auction is ended and loan is not bought by any pool , lender can sieze the collateral
     function siezeLoan(uint256 loanId) external {
         require(loanId < loans.length,"invalid loan id");
         Loan storage loan = loans[loanId];
@@ -394,7 +409,7 @@ contract OFPL is Ownable, ReentrancyGuard {
 
     }
 
-
+    // owner of the loan can give loan to another pool and get his loan value with interest from the new pool
     function RefinanceLoan(Refinance calldata rf) external nonReentrant() {
         require(rf.loanId < loans.length,"invalid loan id");
         Loan storage loan = loans[rf.loanId];

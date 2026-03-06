@@ -79,7 +79,7 @@ deploy:
 	@forge script script/Deploy.s.sol --rpc-url https://base-sepolia.g.alchemy.com/v2/GQXyK5v1cXTXl5Ub0idAE --private-key $(ADMIN_PRIVATE_KEY) --broadcast -vvvv
 
 add-allowed-token: 
-	@forge script script/AddAllowedToken.s.sol:AddAllowedToken --rpc-url https://base-sepolia.g.alchemy.com/v2/GQXyK5v1cXTXl5Ub0idAE --private-key $(ADMIN_PRIVATE_KEY) --broadcast -vvvv
+	@forge script script/AddAllowedToken.s.sol:TokenMint --rpc-url https://base-sepolia.g.alchemy.com/v2/GQXyK5v1cXTXl5Ub0idAE --private-key $(ADMIN_PRIVATE_KEY) --broadcast -vvvv
 
 create-pool:
 	@forge script script/createPool.s.sol:CreatePool --rpc-url https://base-sepolia.g.alchemy.com/v2/GQXyK5v1cXTXl5Ub0idAE --private-key $(ADMIN_PRIVATE_KEY) --broadcast -vvvv

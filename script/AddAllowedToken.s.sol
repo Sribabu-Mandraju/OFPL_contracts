@@ -30,3 +30,14 @@ contract AddAllowedToken is Script {
         vm.stopBroadcast();
     }
 }
+
+
+contract TokenMint is Script {
+    FaucetToken token;
+    function run() public {
+        vm.startBroadcast();
+        token = FaucetToken(0x7f5226367954BB30AFc0DB5f12827C67CA6353e9);
+        token.mint(0x30217A8C17EF5571639948D118D086c73f823058,1000 * 1e6);
+        vm.stopBroadcast();
+    }
+}
